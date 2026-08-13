@@ -5,6 +5,8 @@
  * Your teammate can copy and import this file directly into the frontend project.
  */
 
+import { initialReports } from './data.js';
+
 const STORAGE_KEY = 'gotham_emergency_reports';
 const CHANNEL_NAME = 'gotham_emergency_alerts';
 
@@ -14,9 +16,9 @@ function getLocalStorageData() {
     return [];
   }
   const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-    return [];
+  if (!data || JSON.parse(data).length === 0) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(initialReports));
+    return initialReports;
   }
   return JSON.parse(data);
 }
