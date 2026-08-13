@@ -5,144 +5,135 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GCPD Emergency Command - Dispatcher Dashboard</title>
   
-  <!-- Google Fonts & Leaflet CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
-  <!-- Custom Styles -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body style="overflow: hidden;">
+<body class="theme-cyberpunk">
 
-  <!-- Top Navigation Bar -->
   <nav class="navbar">
     <div class="brand">
-      <span class="brand-badge" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">GCPD HQ</span>
-      <span class="brand-title">Dispatcher Command Dashboard</span>
+      <span class="brand-badge">GCPD</span>
+      <h3 class="glitch" data-text="DISPATCH COMMAND" style="font-size: 1.2rem; margin: 0;">DISPATCH COMMAND</h3>
     </div>
     
     <div class="nav-links">
-      <a href="index.html" class="nav-btn">
-        <span>🚨</span> Citizen Hotline
-      </a>
-      <a href="dispatcher.html" class="nav-btn active">
-        <span>📡</span> Dispatcher Command
-      </a>
-    </div>
-
-    <!-- Active Counters telemetry -->
-    <div style="display: flex; gap: 1rem; align-items: center;">
-      <div style="display: flex; gap: 0.5rem;">
-        <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); color: #EF4444; padding: 2px 8px; border-radius: 4px; font-weight: 700;">FIRE: <span id="countFire">0</span></span>
-        <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); color: #3B82F6; padding: 2px 8px; border-radius: 4px; font-weight: 700;">POLICE: <span id="countPolice">0</span></span>
-        <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #10B981; padding: 2px 8px; border-radius: 4px; font-weight: 700;">MEDICAL: <span id="countMedical">0</span></span>
-      </div>
-
-      <div class="live-indicator">
-        <span class="dot-pulse"></span>
-        <span id="syncStatus">LIVE STORAGE SYNC</span>
-      </div>
+      <a href="index.html">CITIZEN PORTAL</a>
+      <a href="dispatcher.html" class="active">DISPATCH COMMAND</a>
     </div>
   </nav>
 
-  <!-- Main Dashboard Container (Full Height Grid) -->
-  <div class="container" style="max-width: 1400px; margin: 1rem auto; padding: 0 1rem; height: calc(100vh - 85px);">
-    <div class="dashboard-grid">
+  <div class="container" style="max-width: 1400px; display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    
+    <!-- LEFT: MAP -->
+    <div class="cyber-border">
       
-      <!-- Left Main Section: Real-Time Incident Map (Leaflet.js) -->
-      <div class="card map-card">
-        <div class="card-header" style="padding: 1rem 1.25rem; margin-bottom: 0;">
-          <h3 class="card-title">
-            <span>🗺️</span> Gotham Tactical Tactical Incident Map
-          </h3>
-          <span style="font-size: 0.75rem; color: var(--text-dim);" id="activeTotalLabel">0 TOTAL ACTIVE INCIDENTS</span>
-        </div>
-
-        <!-- Leaflet Map Container -->
-        <div id="map"></div>
-      </div>
-
-      <!-- Right Side Panel: Live Emergency Reports Feed -->
-      <div class="card feed-card">
-        <div class="feed-header">
-          <h3 class="card-title" style="font-size: 1.1rem;">
-            <span>📋</span> Incoming Emergency Queue
-          </h3>
-          <button id="btnResetData" title="Reset mock data" style="background: none; border: 1px solid var(--border-color); color: var(--text-dim); border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; cursor: pointer;">
-            🔄 Reset Data
-          </button>
-        </div>
-
-        <!-- Category Filters -->
-        <div class="feed-filter-bar">
-          <button class="filter-btn active" data-filter="All">All Incidents</button>
-          <button class="filter-btn" data-filter="Police">Police</button>
-          <button class="filter-btn" data-filter="Fire">Fire</button>
-          <button class="filter-btn" data-filter="Medical">Medical</button>
-        </div>
-
-        <!-- Reports List Rendered via JavaScript -->
-        <div id="reportsList" class="reports-list">
-          <!-- Dynamic cards injected here -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 class="glitch" data-text="TACTICAL OVERVIEW" style="font-size: 2rem; margin: 0;">TACTICAL OVERVIEW</h2>
+        
+        <div style="display: flex; gap: 1rem;">
+          <div class="status-chip"><div class="status-dot"></div>FIR: <span id="countFire">0</span></div>
+          <div class="status-chip"><div class="status-dot"></div>POL: <span id="countPolice">0</span></div>
+          <div class="status-chip"><div class="status-dot"></div>MED: <span id="countMedical">0</span></div>
         </div>
       </div>
+      
+      <div id="map" class="map-container" style="height: 600px;"></div>
+    </div>
+
+    <!-- RIGHT: FEED -->
+    <div class="cyber-border" style="display: flex; flex-direction: column;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
+        <h2 class="glitch" data-text="INCIDENT LOG" style="font-size: 1.5rem; margin: 0;">INCIDENT LOG</h2>
+        <span class="meta-label">TOTAL: <span id="activeTotalLabel" style="color: #fff;">0</span></span>
+      </div>
+
+      <div class="type-grid" style="margin-bottom: 1rem;">
+        <button class="cyber-btn active filter-btn" data-filter="All">ALL</button>
+        <button class="cyber-btn filter-btn" data-filter="Police">POL</button>
+        <button class="cyber-btn filter-btn" data-filter="Fire">FIR</button>
+        <button class="cyber-btn filter-btn" data-filter="Medical">MED</button>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto;">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>ID/TYPE</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="reportsList">
+            <!-- JS Inject -->
+          </tbody>
+        </table>
+      </div>
+
+      <button id="btnResetData" class="cyber-btn" style="margin-top: 1rem; font-size: 0.8rem;">
+        RESET MOCK DATA
+      </button>
 
     </div>
   </div>
 
-  <!-- Emergency Details Review Modal (User Story 2) -->
-  <div id="detailModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
+  <!-- MODAL -->
+  <div id="detailModal" class="cyber-modal-overlay">
+    <div class="cyber-border cyber-modal-content">
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
         <div>
-          <span id="modalTypeBadge" class="popup-badge" style="background: var(--color-police); color: #FFF;">POLICE</span>
-          <h3 id="modalTitle" style="font-size: 1.2rem; font-weight: 700; margin-top: 4px; color: #FFF;">-</h3>
+          <div id="modalTypeBadge" class="status-chip" style="margin-bottom: 0.5rem;"><div class="status-dot"></div>POLICE</div>
+          <h2 id="modalTitle" class="glitch" data-text="INCIDENT DETAILS" style="font-size: 2rem;">INCIDENT DETAILS</h2>
         </div>
-        <button id="closeModalBtn" class="modal-close">&times;</button>
+        <button id="closeModalBtn" style="background: transparent; border: none; color: var(--cy-cyan); font-size: 2rem; cursor: pointer;">&times;</button>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-        <div class="detail-row">
-          <div class="detail-label">Report ID</div>
-          <div id="modalId" class="detail-val" style="font-family: var(--font-mono);">-</div>
+      <div class="cyber-divider"></div>
+
+      <div class="form-group">
+        <span class="meta-label">INCIDENT ID</span>
+        <div id="modalId" style="font-family: var(--font-mono); color: #fff;">-</div>
+      </div>
+      
+      <div class="form-group">
+        <span class="meta-label">TIMESTAMP</span>
+        <div id="modalTimestamp" style="font-family: var(--font-mono); color: #fff;">-</div>
+      </div>
+
+      <div class="form-group">
+        <span class="meta-label">LOCATION</span>
+        <div id="modalLocation" style="font-family: var(--font-mono); color: #fff;">-</div>
+      </div>
+
+      <div class="form-group">
+        <span class="meta-label">CALLER DETAILS</span>
+        <div id="modalCaller" style="font-family: var(--font-mono); color: #fff;">-</div>
+      </div>
+
+      <div class="form-group">
+        <span class="meta-label">INCIDENT NOTES</span>
+        <div id="modalNotes" style="font-family: var(--font-mono); color: #fff; background: rgba(0,20,25,0.4); padding: 1rem; border: 1px solid rgba(34,211,238,0.3);">-</div>
+      </div>
+
+      <div class="cyber-divider"></div>
+
+      <div class="form-group">
+        <span class="meta-label">UPDATE STATUS</span>
+        <div class="type-grid">
+          <button class="cyber-btn status-btn" data-status="Reported">REPORTED</button>
+          <button class="cyber-btn status-btn" data-status="Dispatched">DISPATCHED</button>
+          <button class="cyber-btn status-btn" data-status="Resolved">RESOLVED</button>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">Reported Timestamp</div>
-          <div id="modalTimestamp" class="detail-val">-</div>
-        </div>
       </div>
 
-      <div class="detail-row">
-        <div class="detail-label">Location / Coordinates</div>
-        <div id="modalLocation" class="detail-val" style="color: #60A5FA;">-</div>
-      </div>
-
-      <div class="detail-row">
-        <div class="detail-label">Caller Name & Contact</div>
-        <div id="modalCaller" class="detail-val">-</div>
-      </div>
-
-      <div class="detail-row">
-        <div class="detail-label">Caller Notes & Incident Breakdown</div>
-        <div id="modalNotes" class="detail-val" style="background: #0B0E17; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.875rem;">-</div>
-      </div>
-
-      <div class="detail-row" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-        <div class="detail-label">Update Incident Status</div>
-        <div class="status-change-group">
-          <button class="status-btn" data-status="Reported">Reported</button>
-          <button class="status-btn" data-status="Dispatched">Dispatched</button>
-          <button class="status-btn" data-status="Resolved">Resolved</button>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- Leaflet JS CDN -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Data & Dispatcher Logic -->
   <script src="js/data.js"></script>
   <script src="js/dispatcher.js"></script>
 </body>

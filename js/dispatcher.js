@@ -1,10 +1,9 @@
 /**
  * Gotham Emergency Response System - Dispatcher Dashboard Logic
- * Handles User Story 2 (Details Review, Real-time Sync, Leaflet Map Integration)
+ * Updated for Cyberpunk (Concept E) Theme
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // DOM Elements
   const reportsListEl = document.getElementById('reportsList');
   const countFireEl = document.getElementById('countFire');
   const countPoliceEl = document.getElementById('countPolice');
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterBtns = document.querySelectorAll('.filter-btn');
   const btnResetData = document.getElementById('btnResetData');
 
-  // Modal Elements
   const detailModal = document.getElementById('detailModal');
   const closeModalBtn = document.getElementById('closeModalBtn');
   const modalTitle = document.getElementById('modalTitle');
@@ -30,63 +28,39 @@ document.addEventListener('DOMContentLoaded', () => {
   let map = null;
   let mapMarkers = [];
 
-  // Map Color Mapping for Emergency Pins
-  const TYPE_COLORS = {
-    Police: '#3B82F6',
-    Fire: '#EF4444',
-    Medical: '#10B981'
-  };
-
-  // Helper for custom Leaflet SVG pin icon
   function createCustomIcon(type) {
-    const color = TYPE_COLORS[type] || '#3B82F6';
-    const iconChar = type === 'Fire' ? '🚒' : type === 'Police' ? '🚓' : '🚑';
+    let color = 'var(--cy-cyan)';
+    if(type === 'Fire') color = 'var(--cy-magenta)';
     
     const svgHtml = `
-      <div style="
-        background-color: ${color};
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid #FFF;
-        box-shadow: 0 0 15px ${color};
-        font-size: 16px;
-      ">
-        ${iconChar}
+      <div style="position:relative; width:24px; height:24px;">
+        <div style="position:absolute; inset:0; border:2px solid ${color}; border-radius:50%; box-shadow: 0 0 8px ${color}; animation: pulseDot 1.5s infinite;"></div>
+        <div style="position:absolute; top:10px; left:10px; width:4px; height:4px; background:${color}; border-radius:50%; box-shadow: 0 0 8px ${color};"></div>
       </div>
     `;
 
     return L.divIcon({
       html: svgHtml,
-      className: 'custom-map-pin',
-      iconSize: [34, 34],
-      iconAnchor: [17, 17],
-      popupAnchor: [0, -18]
+      className: '',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12]
     });
   }
 
-  // Initialize Leaflet Map
   function initMap() {
     if (!document.getElementById('map')) return;
 
-    // Gotham City centered default (New York coordinates proxy)
-    map = L.map('map').setView([40.7150, -74.0080], 13);
-
-    // Dark Matter tile layer for Gotham ambiance
+    map = L.map('map', { zoomControl: false }).setView([40.7150, -74.0080], 13);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> Gotham Command',
+      attribution: 'CARTO',
       maxZoom: 19
     }).addTo(map);
   }
 
-  // Update map markers based on reports data
   function updateMapMarkers(reports) {
     if (!map) return;
 
-    // Clear existing markers
     mapMarkers.forEach(m => map.removeLayer(m));
     mapMarkers = [];
 
@@ -98,14 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
           icon: createCustomIcon(report.type)
         }).addTo(map);
 
-        // Map popup content
         const popupContent = `
-          <div class="popup-card">
-            <span class="popup-badge" style="background:${TYPE_COLORS[report.type]}; color:#FFF;">${report.type}</span>
-            <div class="popup-title">${escapeHtml(report.title || report.type + ' Emergency')}</div>
-            <div class="popup-loc">📍 ${escapeHtml(report.locationName)}</div>
-            <div style="font-size:0.75rem; color:#9CA3AF; margin-bottom:8px;">Status: <strong>${report.status}</strong></div>
-            <button onclick="window.openDetailModal('${report.id}')" style="width:100%; background:#2563EB; color:#FFF; border:none; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer;">View Full Details</button>
+          <div style="font-family: var(--font-mono); font-size: 11px;">
+            <div style="color: var(--cy-magenta); margin-bottom: 4px;">#${report.id.substring(9)}</div>
+            <div style="text-transform: uppercase;">TYPE: ${report.type}</div>
+            <div style="text-transform: uppercase;">STAT: ${report.status}</div>
+            <button class="cyber-btn" style="margin-top: 8px; font-size: 9px; padding: 4px 8px;" onclick="window.openDetailModal('${report.id}')">DETAILS</button>
           </div>
         `;
 
@@ -115,81 +87,71 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Optionally fit bounds if markers exist
     if (bounds.length > 0 && reports.length <= 5) {
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      map.fitBounds(bounds, { padding: [20, 20], maxZoom: 14 });
     }
   }
 
-  // Render Reports List
   function renderDashboard() {
     const allReports = getReports();
 
-    // Update Counter Telemetry
     const counts = { Fire: 0, Police: 0, Medical: 0 };
     allReports.forEach(r => {
       if (counts[r.type] !== undefined) counts[r.type]++;
     });
 
-    countFireEl.textContent = counts.Fire;
-    countPoliceEl.textContent = counts.Police;
-    countMedicalEl.textContent = counts.Medical;
-    activeTotalLabel.textContent = `${allReports.length} TOTAL INCIDENTS`;
+    countFireEl.textContent = counts.Fire.toString().padStart(2, '0');
+    countPoliceEl.textContent = counts.Police.toString().padStart(2, '0');
+    countMedicalEl.textContent = counts.Medical.toString().padStart(2, '0');
+    activeTotalLabel.textContent = allReports.length.toString().padStart(2, '0');
 
-    // Filter reports
     const filtered = allReports.filter(r => {
       if (activeFilter === 'All') return true;
       return r.type === activeFilter;
     });
 
-    // Update Map
     updateMapMarkers(filtered);
 
-    // Clear List DOM
     reportsListEl.innerHTML = '';
 
     if (filtered.length === 0) {
       reportsListEl.innerHTML = `
-        <div style="text-align: center; color: var(--text-dim); padding: 3rem 1rem;">
-          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚨</div>
-          <div>No emergency reports found for this filter.</div>
-        </div>
+        <tr>
+          <td colspan="2" style="text-align: center; color: var(--cy-text-muted);">// NO DATA MATCHES FILTER</td>
+        </tr>
       `;
       return;
     }
 
-    // Loop & Render HTML elements for each report
     filtered.forEach(report => {
-      const card = document.createElement('div');
-      card.className = `incident-card ${report.type}`;
-
-      const timeAgo = formatTimeAgo(report.timestamp);
-
-      card.innerHTML = `
-        <div class="incident-top">
-          <span class="incident-id">${escapeHtml(report.id)}</span>
-          <span class="status-badge ${report.status}">${escapeHtml(report.status)}</span>
-        </div>
-        <div class="incident-title">${escapeHtml(report.title || report.type + ' Emergency')}</div>
-        <div class="incident-meta">
-          <span>📍 ${escapeHtml(report.locationName)}</span>
-        </div>
-        <div class="incident-notes">${escapeHtml(report.notes)}</div>
-        <div class="incident-footer">
-          <span>👤 ${escapeHtml(report.callerName || 'Anonymous')}</span>
-          <span>⏱️ ${timeAgo}</span>
-        </div>
+      const tr = document.createElement('tr');
+      
+      const t = report.type.substring(0,3).toUpperCase();
+      const idShort = report.id.replace('GOTH-911-', '');
+      const title = (report.title || 'UNKNOWN INCD').toUpperCase();
+      
+      tr.innerHTML = `
+        <td style="font-family: var(--font-mono); font-size: 12px;">
+          <span style="color: var(--cy-magenta);">[${idShort}]</span> 
+          <span style="color: var(--cy-cyan);">${t}</span> 
+          <span style="color: #fff;">${title}</span>
+        </td>
+        <td style="font-family: var(--font-mono); font-size: 11px;">
+          <div class="status-chip" style="${report.status === 'Resolved' ? 'border-color: var(--cy-cyan); color: var(--cy-cyan);' : ''}">
+            <div class="status-dot" style="${report.status === 'Resolved' ? 'background: var(--cy-cyan);' : ''}"></div>
+            ${report.status.toUpperCase()}
+          </div>
+        </td>
       `;
 
-      card.addEventListener('click', () => {
+      tr.addEventListener('click', () => {
         openDetailModal(report.id);
       });
 
-      reportsListEl.appendChild(card);
+      reportsListEl.appendChild(tr);
     });
   }
 
-  // Open Emergency Details Modal (User Story 2)
   function openDetailModal(reportId) {
     const reports = getReports();
     const report = reports.find(r => r.id === reportId);
@@ -197,17 +159,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentSelectedReportId = report.id;
 
-    modalTitle.textContent = report.title || `${report.type} Incident`;
-    modalTypeBadge.textContent = report.type.toUpperCase();
-    modalTypeBadge.style.backgroundColor = TYPE_COLORS[report.type] || '#3B82F6';
+    modalTitle.textContent = (report.title || `${report.type} Incident`).toUpperCase();
+    
+    // Add glitch effect
+    modalTitle.setAttribute('data-text', modalTitle.textContent);
+    
+    modalTypeBadge.innerHTML = `<div class="status-dot"></div>${report.type.toUpperCase()}`;
     
     modalId.textContent = report.id;
-    modalTimestamp.textContent = new Date(report.timestamp).toLocaleString();
-    modalLocation.textContent = `${report.locationName} (${report.lat}, ${report.lng})`;
-    modalCaller.textContent = `${report.callerName || 'Anonymous'} (${report.callerPhone || 'No contact phone'})`;
-    modalNotes.textContent = report.notes;
+    
+    const d = new Date(report.timestamp);
+    const timeStr = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+    modalTimestamp.textContent = `T-MINUS: ${timeStr}`;
+    
+    modalLocation.textContent = report.locationName.toUpperCase() + ` [${report.lat}, ${report.lng}]`;
+    modalCaller.textContent = `${report.callerName || 'ANON_USR'} // ${report.callerPhone || 'NO_COMMS'}`.toUpperCase();
+    modalNotes.textContent = report.notes.toUpperCase();
 
-    // Highlight active status button
     statusBtns.forEach(btn => {
       if (btn.getAttribute('data-status') === report.status) {
         btn.classList.add('active');
@@ -219,19 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
     detailModal.classList.add('open');
   }
 
-  // Expose to window for popup click call
   window.openDetailModal = openDetailModal;
 
-  // Close Modal
   closeModalBtn.addEventListener('click', () => {
     detailModal.classList.remove('open');
   });
 
-  detailModal.addEventListener('click', (e) => {
-    if (e.target === detailModal) detailModal.classList.remove('open');
-  });
-
-  // Handle Status Update buttons inside Modal
   statusBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       if (!currentSelectedReportId) return;
@@ -246,51 +207,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Category Filter button clicks
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      
       activeFilter = btn.getAttribute('data-filter');
       renderDashboard();
     });
   });
 
-  // Reset Data button
   btnResetData.addEventListener('click', () => {
-    if (confirm('Reset emergency data to default mock records?')) {
+    if (confirm('Reset mock data?')) {
       resetToDefaultData();
       renderDashboard();
     }
   });
 
-  // REAL-TIME UPDATES (Task detail: Use window.addEventListener('storage', ...))
   window.addEventListener('storage', (e) => {
     if (e.key === 'gotham_emergency_reports') {
-      console.log('[Dispatcher] Real-time storage update detected!');
       renderDashboard();
     }
   });
 
-  // Also listen for custom same-window event
   window.addEventListener('gotham_data_updated', () => {
     renderDashboard();
   });
 
-  // Helper time formatter
-  function formatTimeAgo(isoString) {
-    if (!isoString) return 'Just now';
-    const date = new Date(isoString);
-    const diffMins = Math.floor((new Date() - date) / 60000);
-    if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1 min ago';
-    if (diffMins < 60) return `${diffMins} mins ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours === 1) return '1 hr ago';
-    return `${diffHours} hrs ago`;
-  }
-
-  // Security helper
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, function(m) {
@@ -304,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initialize
   initMap();
   renderDashboard();
 });

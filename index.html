@@ -5,157 +5,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gotham City 911 - Citizen Emergency Portal</title>
   
-  <!-- Google Fonts & Leaflet CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
-  <!-- Custom Styles -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="theme-cyberpunk">
 
-  <!-- Top Navigation Bar -->
   <nav class="navbar">
     <div class="brand">
-      <span class="brand-badge">911 SOS</span>
-      <span class="brand-title">Gotham City Emergency Portal</span>
+      <span class="brand-badge">911</span>
+      <h3 class="glitch" data-text="GOTHAM CITIZEN PORTAL" style="font-size: 1.2rem; margin: 0;">GOTHAM CITIZEN PORTAL</h3>
     </div>
     
     <div class="nav-links">
-      <a href="index.html" class="nav-btn active">
-        <span>🚨</span> Citizen Hotline
-      </a>
-      <a href="dispatcher.html" class="nav-btn">
-        <span>📡</span> Dispatcher Command
-      </a>
-    </div>
-
-    <div class="live-indicator">
-      <span class="dot-pulse"></span>
-      <span>GCPD NETWORK ONLINE</span>
+      <a href="index.html" class="active">CITIZEN PORTAL</a>
+      <a href="dispatcher.html">DISPATCH COMMAND</a>
     </div>
   </nav>
 
-  <!-- Main Container -->
-  <div class="container">
-    <div class="grid-2col">
+  <div class="container" style="max-width: 800px;">
+    
+    <div class="cyber-border">
       
-      <!-- Left Column: Citizen Emergency Reporting Form -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">
-            <span>🚨</span> Submit Emergency Report
-          </h2>
-          <span style="font-size: 0.8rem; color: var(--text-dim);">IMMEDIATE DISPATCH</span>
+      <h1 class="glitch" data-text="EMERGENCY REPORT" style="font-size: 3rem; margin-bottom: 2rem;">EMERGENCY REPORT</h1>
+      
+      <form id="emergencyForm">
+        
+        <div class="form-group">
+          <span class="meta-label">EMERGENCY TYPE</span>
+          <div class="type-grid">
+            <button type="button" class="cyber-btn active" data-type="Police">POLICE</button>
+            <button type="button" class="cyber-btn" data-type="Fire">FIRE</button>
+            <button type="button" class="cyber-btn" data-type="Medical">MEDICAL</button>
+          </div>
+          <input type="hidden" id="emergencyType" value="Police">
         </div>
 
-        <form id="emergencyForm">
-          
-          <!-- Step 1: Emergency Type Selection -->
-          <div class="form-group">
-            <label class="form-label">1. Select Emergency Type *</label>
-            <div class="type-grid">
-              <div class="type-btn selected" data-type="Police">
-                <span class="icon">🚓</span>
-                <span class="label">Police</span>
-              </div>
-              <div class="type-btn" data-type="Fire">
-                <span class="icon">🚒</span>
-                <span class="label">Fire</span>
-              </div>
-              <div class="type-btn" data-type="Medical">
-                <span class="icon">🚑</span>
-                <span class="label">Medical</span>
-              </div>
-            </div>
-            <!-- Hidden input to hold chosen emergency type -->
-            <input type="hidden" id="emergencyType" value="Police">
-          </div>
-
-          <!-- Step 2: Location Input & Quick Presets -->
-          <div class="form-group">
-            <label class="form-label" for="locationInput">2. Location / Address *</label>
-            <input type="text" id="locationInput" class="form-input" placeholder="e.g. Crime Alley, Downtown Gotham" required>
-            
-            <div class="presets-label">QUICK GOTHAM LANDMARKS:</div>
-            <div class="presets-container">
-              <button type="button" class="preset-chip" data-name="Crime Alley, Downtown" data-lat="40.7128" data-lng="-74.0060">Crime Alley</button>
-              <button type="button" class="preset-chip" data-name="Ace Chemicals, Industrial Sector" data-lat="40.7250" data-lng="-74.0150">Ace Chemicals</button>
-              <button type="button" class="preset-chip" data-name="The Narrows, Residential Block" data-lat="40.7050" data-lng="-73.9950">The Narrows</button>
-              <button type="button" class="preset-chip" data-name="Wayne Tower Plaza" data-lat="40.7180" data-lng="-74.0020">Wayne Tower</button>
-              <button type="button" class="preset-chip" data-name="Arkham Asylum Security Gate" data-lat="40.7350" data-lng="-74.0250">Arkham Gate</button>
-            </div>
-
-            <!-- Hidden lat/lng fields -->
-            <input type="hidden" id="latInput" value="40.7128">
-            <input type="hidden" id="lngInput" value="-74.0060">
-          </div>
-
-          <!-- Step 3: Incident Details & Notes -->
-          <div class="form-group">
-            <label class="form-label" for="callerNotes">3. Caller Notes & Description *</label>
-            <textarea id="callerNotes" class="form-textarea" placeholder="Describe what is happening, number of suspects/victims, immediate dangers..." required></textarea>
-          </div>
-
-          <!-- Step 4: Caller Contact Info -->
-          <div class="grid-2col" style="gap: 1rem; margin-bottom: 1.25rem;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="callerName">Your Name</label>
-              <input type="text" id="callerName" class="form-input" placeholder="Anonymous or Name">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label" for="callerPhone">Callback Phone</label>
-              <input type="text" id="callerPhone" class="form-input" placeholder="555-0199">
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <button type="submit" class="btn-submit">
-            <span>TRANSMIT EMERGENCY ALERT</span>
-            <span>⚡</span>
-          </button>
-        </form>
-
-        <!-- Success Feedback Alert -->
-        <div id="feedbackBanner" class="feedback-banner">
-          <div class="feedback-header">
-            <span>✅</span> Report Submitted Successfully!
-          </div>
-          <div>Your emergency signal has been broadcast directly to Gotham GCPD Dispatchers.</div>
-          <div id="reportIdDisplay" class="feedback-id">REPORT ID: -</div>
+        <div class="form-group">
+          <span class="meta-label">LOCATION</span>
+          <input type="text" id="locationInput" class="cyber-input" placeholder="ENTER ADDRESS" required>
         </div>
 
-      </div>
+        <div class="cyber-divider"></div>
 
-      <!-- Right Column: Interactive Map Pin Picker & Instructions -->
-      <div class="card" style="display: flex; flex-direction: column;">
-        <div class="card-header">
-          <h3 class="card-title">
-            <span>🗺️</span> Interactive Location Selector
-          </h3>
-          <span style="font-size: 0.8rem; color: var(--text-dim);">CLICK MAP TO PIN</span>
+        <div class="form-group">
+          <span class="meta-label">COORDINATES</span>
+          <div id="pickerMap" class="map-container"></div>
+          <input type="hidden" id="latInput" value="40.7128">
+          <input type="hidden" id="lngInput" value="-74.0060">
         </div>
 
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-          Click anywhere on the map to automatically pin the exact GPS location of the emergency.
-        </p>
+        <div class="cyber-divider"></div>
 
-        <div id="pickerMap" style="flex: 1; min-height: 340px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-color);"></div>
-
-        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 6px; font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between;">
-          <span>Selected Lat: <strong id="dispLat" style="color: #FFF;">40.7128</strong></span>
-          <span>Selected Lng: <strong id="dispLng" style="color: #FFF;">-74.0060</strong></span>
+        <div class="form-group">
+          <span class="meta-label">NOTES</span>
+          <textarea id="callerNotes" class="cyber-input" placeholder="DESCRIBE SITUATION..." required></textarea>
         </div>
+
+        <div class="form-group" style="display: flex; gap: 1rem;">
+          <div style="flex: 1;">
+            <span class="meta-label">NAME</span>
+            <input type="text" id="callerName" class="cyber-input" placeholder="NAME (OPTIONAL)">
+          </div>
+          <div style="flex: 1;">
+            <span class="meta-label">PHONE</span>
+            <input type="text" id="callerPhone" class="cyber-input" placeholder="PHONE (OPTIONAL)">
+          </div>
+        </div>
+
+        <button type="submit" class="cyber-btn" style="width: 100%; margin-top: 1rem; font-size: 1.2rem; padding: 1rem;">
+          SUBMIT EMERGENCY REPORT
+        </button>
+
+      </form>
+
+      <div id="feedbackBanner" class="feedback-alert">
+        <div class="status-chip" style="margin-bottom: 0.5rem;">
+          <div class="status-dot"></div>
+          UPLINK SECURE
+        </div>
+        <div style="font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; text-transform: uppercase;">TRANSMISSION RECEIVED</div>
+        <div id="reportIdDisplay" style="margin-top: 0.5rem; color: #fff;">REF_ID: -</div>
       </div>
 
     </div>
+
   </div>
 
-  <!-- Leaflet JS CDN -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Data & Logic Scripts -->
   <script src="js/data.js"></script>
   <script src="js/citizen.js"></script>
 </body>
